@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="HomeStock — know what you have. Track household essentials, low stock, and shopping lists. All data stays in your browser.">
+<meta name="theme-color" content="#426b57">
+<title>HomeStock — Know What You Have</title>
+<link rel="stylesheet" href="./style.css">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='4' width='24' height='24' rx='5' fill='none' stroke='%23426b57' stroke-width='2'/%3E%3Cpath d='M10 16h12M10 11h12M10 21h7' stroke='%23426b57' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" aria-label="Main navigation">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="4" width="24" height="24" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 16h12M10 11h12M10 21h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <div>
+        <span class="brand-name">HomeStock</span>
+        <span class="brand-tag">Know what you have</span>
+      </div>
+    </div>
+    <nav class="side-nav" aria-label="Sections">
+      <button type="button" class="nav-btn" data-nav="dashboard" aria-current="page">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v10h14V10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Dashboard</button>
+      <button type="button" class="nav-btn" data-nav="items" aria-current="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        My Items</button>
+      <button type="button" class="nav-btn" data-nav="shopping" aria-current="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.5 12h-11L5 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Shopping List <span class="nav-badge" id="shopBadge" hidden>0</span></button>
+      <button type="button" class="nav-btn" data-nav="settings" aria-current="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        Settings</button>
+    </nav>
+    <p class="side-note">Your data never leaves this browser. No account, no server.</p>
+  </aside>
+
+  <main class="main" id="main">
+    <!-- ============ DASHBOARD ============ -->
+    <section id="panel-dashboard" class="panel" aria-labelledby="dashTitle">
+      <div class="panel-head">
+        <div>
+          <h1 id="dashTitle">Dashboard</h1>
+          <p class="lede">A quick look at what you have, what is running low, and what to buy.</p>
+        </div>
+        <button type="button" class="btn btn-primary" id="dashAddBtn">Add item</button>
+      </div>
+      <div class="stat-grid" role="group" aria-label="Inventory summary">
+        <div class="stat-card"><span class="stat-num" id="statTotal">0</span><span class="stat-label">Items in stock list</span></div>
+        <div class="stat-card stat-warn"><span class="stat-num" id="statLow">0</span><span class="stat-label">Low on stock</span></div>
+        <div class="stat-card stat-bad"><span class="stat-num" id="statOut">0</span><span class="stat-label">Out of stock</span></div>
+        <div class="stat-card"><span class="stat-num" id="statShop">0</span><span class="stat-label">To buy (unchecked)</span></div>
+      </div>
+      <div class="dash-cols">
+        <div class="card">
+          <h2>Needs attention</h2>
+          <p class="muted" id="lowEmpty">Nothing is low or out of stock. Add items in My Items to start tracking.</p>
+          <ul id="lowList" class="low-list"></ul>
+        </div>
+        <div class="card">
+          <h2>Restock suggestions</h2>
+          <p class="muted">Items at or below their minimum, not already on your shopping list.</p>
+          <ul id="suggestList" class="suggest-list"></ul>
+          <p class="muted" id="suggestEmpty" hidden>No suggestions right now.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MY ITEMS ============ -->
+    <section id="panel-items" class="panel" aria-labelledby="itemsTitle" hidden>
+      <div class="panel-head">
+        <div>
+          <h1 id="itemsTitle">My Items</h1>
+          <p class="lede">Everything in your cupboards, kitchen, and bathroom.</p>
+        </div>
+        <button type="button" class="btn btn-primary" id="addItemBtn">Add item</button>
+      </div>
+      <div class="toolbar">
+        <label class="visually-hidden" for="itemSearch">Search items</label>
+        <input type="search" id="itemSearch" placeholder="Search by name…" autocomplete="off">
+        <label class="visually-hidden" for="filterCat">Filter by category</label>
+        <select id="filterCat"><option value="">All categories</option></select>
+        <label class="visually-hidden" for="filterStatus">Filter by stock status</label>
+        <select id="filterStatus">
+          <option value="">All stock levels</option>
+          <option value="healthy">Healthy</option>
+          <option value="low">Low stock</option>
+          <option value="out">Out of stock</option>
+        </select>
+        <label class="visually-hidden" for="sortBy">Sort items</label>
+        <select id="sortBy">
+          <option value="name">Sort: name A–Z</option>
+          <option value="qty-asc">Sort: quantity, low first</option>
+          <option value="qty-desc">Sort: quantity, high first</option>
+        </select>
+      </div>
+      <p class="count" id="itemCount" aria-live="polite"></p>
+      <div id="itemEmpty" class="empty">
+        <p><strong>No items yet.</strong></p>
+        <p>Add your first household item — shampoo, detergent, tissue — with how many you have and the minimum you want to keep.</p>
+        <button type="button" class="btn btn-primary" data-open-item>Add your first item</button>
+      </div>
+      <ul id="itemList" class="item-list"></ul>
+    </section>
+
+    <!-- ============ SHOPPING LIST ============ -->
+    <section id="panel-shopping" class="panel" aria-labelledby="shopTitle" hidden>
+      <div class="panel-head">
+        <div>
+          <h1 id="shopTitle">Shopping List</h1>
+          <p class="lede">What to buy. Checking an item off does not change your stock — add it to stock only when you choose to.</p>
+        </div>
+        <button type="button" class="btn" id="clearCheckedBtn">Clear checked</button>
+      </div>
+      <form id="manualShopForm" class="inline-form card" aria-label="Add to shopping list manually">
+        <h2>Add something to buy</h2>
+        <div class="form-row">
+          <div class="field grow">
+            <label for="shopName">Item name</label>
+            <input id="shopName" type="text" required maxlength="80" placeholder="e.g. Dish soap" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="shopQty">Quantity</label>
+            <input id="shopQty" type="number" min="1" step="1" value="1" required>
+          </div>
+          <div class="field">
+            <label for="shopUnit">Unit</label>
+            <select id="shopUnit">
+              <option>pieces</option><option>bottles</option><option>packs</option>
+              <option>rolls</option><option>boxes</option>
+            </select>
+          </div>
+          <div class="field end">
+            <button type="submit" class="btn btn-primary">Add to list</button>
+          </div>
+        </div>
+      </form>
+      <div class="card">
+        <h2>Restock suggestions</h2>
+        <p class="muted">Based on your minimum quantities. Suggested amount is minimum minus current, plus one.</p>
+        <ul id="shopSuggestList" class="suggest-list"></ul>
+        <p class="muted" id="shopSuggestEmpty" hidden>No suggestions right now.</p>
+      </div>
+      <div class="card">
+        <h2>To buy</h2>
+        <p class="muted" id="shopEmpty">Your shopping list is empty.</p>
+        <ul id="shopList" class="shop-list"></ul>
+        <div class="shop-actions" id="shopActions" hidden>
+          <button type="button" class="btn btn-primary" id="addPurchasedBtn">Add purchased quantities to stock</button>
+          <p class="muted small">Only checked entries linked to an item change your stock, and only after you confirm.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SETTINGS ============ -->
+    <section id="panel-settings" class="panel" aria-labelledby="setTitle" hidden>
+      <div class="panel-head">
+        <div>
+          <h1 id="setTitle">Settings</h1>
+          <p class="lede">Categories, your data, and how the app looks.</p>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Appearance</h2>
+        <div class="form-row">
+          <div class="field">
+            <label for="themeSelect">Theme</label>
+            <select id="themeSelect">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Categories</h2>
+        <form id="catForm" class="form-row" aria-label="Add a category">
+          <div class="field grow">
+            <label for="catName">New category name</label>
+            <input id="catName" type="text" required maxlength="40" placeholder="e.g. Pantry" autocomplete="off">
+          </div>
+          <div class="field end"><button type="submit" class="btn btn-primary">Add category</button></div>
+        </form>
+        <ul id="catList" class="cat-list"></ul>
+      </div>
+      <div class="card">
+        <h2>Your data</h2>
+        <p class="muted">Backup includes items, categories, shopping list, and settings. Backups are checked in full before anything is replaced — a bad file leaves your data untouched.</p>
+        <p class="muted" id="storageInfo" aria-live="polite">Storage used: calculating…</p>
+        <div class="btn-row">
+          <button type="button" class="btn" id="exportBtn">Export backup (JSON)</button>
+          <button type="button" class="btn" id="importBtn">Import backup…</button>
+          <input type="file" id="importFile" accept="application/json,.json" class="visually-hidden" aria-label="Choose a HomeStock backup file">
+        </div>
+      </div>
+      <div class="card danger-zone">
+        <h2>Delete all data</h2>
+        <p class="muted">Removes every item, category, shopping entry, and setting from this browser. This cannot be undone. Export a backup first if you want to keep a copy.</p>
+        <button type="button" class="btn btn-danger" id="deleteAllBtn">Delete all data…</button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Sections">
+    <button type="button" class="nav-btn" data-nav="dashboard" aria-current="page">Dashboard</button>
+    <button type="button" class="nav-btn" data-nav="items" aria-current="false">My Items</button>
+    <button type="button" class="nav-btn" data-nav="shopping" aria-current="false">Shopping <span class="nav-badge" id="shopBadgeMobile" hidden>0</span></button>
+    <button type="button" class="nav-btn" data-nav="settings" aria-current="false">Settings</button>
+  </nav>
+</div>
+
+<!-- Item dialog -->
+<dialog id="itemDialog" aria-labelledby="itemDialogTitle">
+  <form method="dialog" id="itemForm">
+    <h2 id="itemDialogTitle">Add item</h2>
+    <p class="form-error" id="itemFormError" role="alert" hidden></p>
+    <div class="field">
+      <label for="fName">Item name</label>
+      <input id="fName" type="text" required maxlength="80" autocomplete="off" placeholder="e.g. Shampoo">
+    </div>
+    <div class="form-row">
+      <div class="field grow">
+        <label for="fCategory">Category</label>
+        <select id="fCategory"></select>
+      </div>
+      <div class="field">
+        <label for="fUnit">Unit</label>
+        <select id="fUnit">
+          <option>pieces</option><option>bottles</option><option>packs</option>
+          <option>rolls</option><option>boxes</option><option value="custom">Custom…</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" id="customUnitWrap" hidden>
+      <label for="fCustomUnit">Custom unit</label>
+      <input id="fCustomUnit" type="text" maxlength="20" autocomplete="off" placeholder="e.g. sachets">
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label for="fQty">Current quantity</label>
+        <input id="fQty" type="number" min="0" step="1" value="0" required>
+      </div>
+      <div class="field">
+        <label for="fMin">Minimum to keep</label>
+        <input id="fMin" type="number" min="0" step="1" value="1" required>
+      </div>
+    </div>
+    <p class="hint">Minimum 0 means no low-stock warning while you still have some.</p>
+    <div class="field">
+      <label for="fLocation">Location <span class="optional">(optional)</span></label>
+      <input id="fLocation" type="text" maxlength="60" autocomplete="off" placeholder="e.g. Kitchen cabinet">
+    </div>
+    <div class="field">
+      <label for="fNotes">Notes <span class="optional">(optional)</span></label>
+      <textarea id="fNotes" maxlength="300" rows="2" placeholder="e.g. Buy the unscented one"></textarea>
+    </div>
+    <div class="dialog-actions">
+      <button type="button" class="btn" id="itemCancel">Cancel</button>
+      <button type="submit" class="btn btn-primary" id="itemSave">Save item</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Confirm dialog -->
+<dialog id="confirmDialog" aria-labelledby="confirmTitle">
+  <form method="dialog" id="confirmForm">
+    <h2 id="confirmTitle">Are you sure?</h2>
+    <p id="confirmText"></p>
+    <div class="field" id="confirmReassignWrap" hidden>
+      <label for="confirmReassign">Move its items to</label>
+      <select id="confirmReassign"></select>
+    </div>
+    <div class="dialog-actions">
+      <button type="button" class="btn" id="confirmCancel">Cancel</button>
+      <button type="submit" class="btn btn-danger" id="confirmOk">Delete</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast-region" aria-live="polite" id="toastRegion"></div>
+<script src="./app.js"></script>
+</body>
+</html>
